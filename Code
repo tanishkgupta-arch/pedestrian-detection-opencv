@@ -1,0 +1,41 @@
+# in this activity we will be using input as a cctv video and along with that we will be using haarcascade file for the detection part.
+# We are going to detect movement of objects with the help of open cv
+
+# Import library
+import cv2
+import time
+
+# Import and add harrcascade file
+Pedestrian = cv2.CascadeClassifier("haarcascade_fullbody.xml")
+capture = cv2.VideoCapture("cctv.mp4")
+
+if not capture.isOpened():
+    capture = cv2.VideoCapture(0)
+
+# Use video capture for camera access
+while capture.isOpened():
+    time.sleep(0.05)
+    ret, frame = capture.read()
+    if not ret:
+        break
+
+    frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
+
+    # resize, grayscale conversion and multiscale detection
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    pedestrian_detected = Pedestrian.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
+
+    # Use rectangle and put text
+    for (x, y, w, h) in pedestrian_detected:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (224, 255, 255), 3)
+        cv2.putText(frame, "person", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1, (224, 255, 255), 2, cv2.LINE_AA)
+
+    cv2.imshow("pedestrian detection", frame)
+    c = cv2.waitKey(1)
+    if c == 27:
+        break
+
+# Use i am show for output and wait key
+# close the code
+capture.release()
+cv2.destroyAllWindows()
